@@ -17,8 +17,7 @@
             android:layout_width="50dp"
             android:layout_height="match_parent"
             android:id="@+id/add_imageView"
-            android:src="@drawable/title_city"
-            />
+            android:src="@drawable/title_city" />
 
         <ImageView
             android:layout_width="1dp"
@@ -37,31 +36,30 @@
             android:textColor="#FFFFFF"
             android:layout_centerVertical="true"
             android:layout_toRightOf="@+id/verticalLine"
-            android:text=" 北京天气"
             android:textSize="20sp"
-            android:layout_toEndOf="@+id/verticalLine" />
+            android:layout_toEndOf="@+id/verticalLine"
+            android:id="@+id/cityWeather_textView" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:gravity="end">
+
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
                 android:src="@drawable/base_action_bar_action_city"
-                />
+                android:id="@+id/locate_imageView" />
 
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:src="@drawable/title_share"
-                />
+                android:src="@drawable/title_share" />
 
             <ImageView
                 android:layout_width="50dp"
                 android:layout_height="wrap_content"
-                android:src="@drawable/title_update"
-                />
+                android:src="@drawable/title_update" />
         </LinearLayout>
     </RelativeLayout>
 
@@ -69,8 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="110dp"
         android:layout_below="@+id/firstLayout"
-        android:id="@+id/secondLayout"
-        >
+        android:id="@+id/secondLayout">
 
         <TextView
             android:layout_width="wrap_content"
@@ -78,7 +75,6 @@
             android:textSize="35sp"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
-            android:text="北京"
             android:textStyle="bold"
             android:textColor="#FFFFFF"
             android:id="@+id/city_TextView"
@@ -90,7 +86,7 @@
             android:layout_below="@+id/city_TextView"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
-            android:text="今天18:25发布"
+
             android:layout_marginLeft="20dp"
             android:layout_marginTop="5dp"
             android:id="@+id/publishTime_TextView"
@@ -104,8 +100,7 @@
             android:text="湿度:57%"
             android:layout_marginLeft="20dp"
             android:layout_marginStart="20dp"
-            android:textSize="15sp"
-            />
+            android:textSize="15sp" />
 
         <ImageView
             android:layout_width="55dp"
@@ -116,7 +111,7 @@
             android:layout_marginEnd="10dp"
             android:layout_alignParentEnd="true"
             android:layout_marginTop="10dp"
-            android:id="@+id/humanHead_ImageView"/>
+            android:id="@+id/humanHead_ImageView" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -143,8 +138,8 @@
             android:layout_marginRight="60dp"
             android:layout_marginEnd="62dp"
             android:layout_alignParentEnd="true"
-            android:id="@+id/ValueOfPM2.5_TextView"
-            />
+            android:id="@+id/ValueOfPM2.5_TextView" />
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -161,11 +156,12 @@
         android:layout_width="match_parent"
         android:layout_height="140dp"
         android:layout_below="@+id/secondLayout">
+
         <ImageView
             android:layout_width="130dp"
             android:layout_height="match_parent"
             android:src="@drawable/biz_plugin_weather_qing"
-            android:id="@+id/weatherCondition_ImageView"/>
+            android:id="@+id/weatherCondition_ImageView" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -176,7 +172,7 @@
             android:layout_toRightOf="@+id/weatherCondition_ImageView"
             android:id="@+id/weekDay_TextView"
             android:layout_toEndOf="@+id/weatherCondition_ImageView" />
-        
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -187,8 +183,7 @@
             android:layout_toRightOf="@+id/weatherCondition_ImageView"
             android:layout_below="@+id/weekDay_TextView"
             android:layout_toEndOf="@+id/weatherCondition_ImageView"
-            android:id="@+id/temperatureValue_TextView"
-            />
+            android:id="@+id/temperatureValue_TextView" />
 
         <TextView
             android:layout_width="wrap_content"
@@ -199,8 +194,7 @@
             android:layout_toRightOf="@+id/weatherCondition_ImageView"
             android:layout_below="@+id/temperatureValue_TextView"
             android:layout_toEndOf="@+id/weatherCondition_ImageView"
-            android:id="@+id/weatherCondition_TextView"
-            />
+            android:id="@+id/weatherCondition_TextView" />
 
         <TextView
             android:layout_width="wrap_content"
