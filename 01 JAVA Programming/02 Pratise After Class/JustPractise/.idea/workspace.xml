@@ -2,11 +2,49 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="2894144e-99e2-4d74-bd39-a2052ab1aa5d" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/uiDesigner.xml" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/vcs.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/Test.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/Test.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/.idea/.name" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/.idea/misc.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/.idea/modules.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/.idea/uiDesigner.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/.idea/vcs.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/.idea/workspace.xml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/23DesigningModel.iml" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/observerPattern/Main.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/observerPattern/currentConditions/CurrentConditions.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/observerPattern/observer/Observer.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/observerPattern/subject/Subject.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/observerPattern/weatherData/WeatherData.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/Main.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/duck/Duck.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/ducks/GreenDuck.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/ducks/RedDuck.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/flyBehavoir/BadFlyBehavior.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/flyBehavoir/GoodFlyBehavior.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/flyBehavoir/IFlyBehavior.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/flyBehavoir/NoFlyBehavoir.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/quackBehavoir/GaGaQuackBehavoir.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/quackBehavoir/GeGeQuackBehavoir.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/quackBehavoir/IQuackBehavior.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/strategyPattern/quackBehavoir/NoQuackBehavoir.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/out/production/23DesigningModel/util/utility.class" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/observerPattern/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/observerPattern/currentConditions/CurrentConditions.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/observerPattern/observer/Observer.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/observerPattern/subject/Subject.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/observerPattern/weatherData/WeatherData.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/Main.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/duck/Duck.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/ducks/GreenDuck.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/ducks/RedDuck.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/flyBehavoir/BadFlyBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/flyBehavoir/GoodFlyBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/flyBehavoir/IFlyBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/flyBehavoir/NoFlyBehavoir.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/quackBehavoir/GaGaQuackBehavoir.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/quackBehavoir/GeGeQuackBehavoir.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/quackBehavoir/IQuackBehavior.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/strategyPattern/quackBehavoir/NoQuackBehavoir.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/../../23DesigningModel/src/util/utility.java" beforeDir="false" />
     </list>
     <ignored path="$PROJECT_DIR$/out/" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -19,12 +57,13 @@
     <session id="1952181338">
       <usages-collector id="statistics.lifecycle.project">
         <counts>
-          <entry key="project.closed" value="4" />
+          <entry key="project.closed" value="5" />
           <entry key="project.open.time.11" value="1" />
           <entry key="project.open.time.15" value="1" />
+          <entry key="project.open.time.17" value="1" />
           <entry key="project.open.time.18" value="1" />
           <entry key="project.open.time.7" value="1" />
-          <entry key="project.opened" value="4" />
+          <entry key="project.opened" value="5" />
         </counts>
       </usages-collector>
       <usages-collector id="statistics.file.extensions.edit">
@@ -40,17 +79,7 @@
     </session>
   </component>
   <component name="FileEditorManager">
-    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300">
-      <file pinned="false" current-in-tab="true">
-        <entry file="file://$PROJECT_DIR$/src/Test.java">
-          <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="108">
-              <caret line="4" column="36" selection-start-line="4" selection-start-column="36" selection-end-line="4" selection-end-column="36" />
-            </state>
-          </provider>
-        </entry>
-      </file>
-    </leaf>
+    <leaf SIDE_TABS_SIZE_LIMIT_KEY="300" />
   </component>
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$/../../.." />
@@ -80,18 +109,6 @@
       <foldersAlwaysOnTop value="true" />
     </navigator>
     <panes>
-      <pane id="PackagesPane">
-        <subPane>
-          <expand>
-            <path>
-              <item name="JustPractise" type="58d84e3e:PackageViewProjectNode" />
-              <item name="JustPractise" type="616d4139:PackageViewModuleNode" />
-            </path>
-          </expand>
-          <select />
-        </subPane>
-      </pane>
-      <pane id="Scope" />
       <pane id="ProjectPane">
         <subPane>
           <expand>
@@ -109,6 +126,18 @@
               <item name="JustPractise" type="462c0819:PsiDirectoryNode" />
               <item name="src" type="462c0819:PsiDirectoryNode" />
               <item name="Test.java" type="529ef68f:ClassesTreeStructureProvider$PsiClassOwnerTreeNode" />
+            </path>
+          </expand>
+          <select />
+        </subPane>
+      </pane>
+      <pane id="Scope" />
+      <pane id="PackagesPane">
+        <subPane>
+          <expand>
+            <path>
+              <item name="JustPractise" type="58d84e3e:PackageViewProjectNode" />
+              <item name="JustPractise" type="616d4139:PackageViewModuleNode" />
             </path>
           </expand>
           <select />
@@ -147,16 +176,17 @@
       <workItem from="1538736454134" duration="100000" />
       <workItem from="1538736611644" duration="22000" />
       <workItem from="1538740130775" duration="24000" />
+      <workItem from="1538881327451" duration="19000" />
     </task>
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="165000" />
+    <option name="totallyTimeSpent" value="184000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="-1928" y="-320" width="1936" height="1096" extended-state="6" />
     <layout>
-      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.2553305" />
+      <window_info active="true" content_ui="combo" id="Project" order="0" visible="true" weight="0.25799572" />
       <window_info id="Structure" order="1" side_tool="true" weight="0.25" />
       <window_info id="Designer" order="2" />
       <window_info id="Image Layers" order="3" />
@@ -196,7 +226,7 @@
     <entry file="file://$PROJECT_DIR$/src/Test.java">
       <provider selected="true" editor-type-id="text-editor">
         <state relative-caret-position="108">
-          <caret line="4" column="36" selection-start-line="4" selection-start-column="36" selection-end-line="4" selection-end-column="36" />
+          <caret line="4" column="9" lean-forward="true" selection-start-line="4" selection-start-column="9" selection-end-line="4" selection-end-column="9" />
         </state>
       </provider>
     </entry>
