@@ -1,3 +1,11 @@
 <resources>
     <string name="app_name">WeatherForecast</string>
+    <!--firstPage Strings-->
+    <string name="strOfToday">今天</string>
+    <string name="strOfPublish">发布</string>
+    <string name="strOfPM25">PM2.5</string>
+    <string name="defaultValue">N/A</string>
+    <string name="strOfWeather">天气</string>
+    <!--firstPage Strings-->
+
 </resources>
