@@ -32,3 +32,13 @@ void testProblem5();
 //problem 6, judge whether an input stream is a plalindrome 
 void judgePlalindrome();
 void testProblem6();
+
+//print function for linked list
+void print(node *list);
+
+//according to the array set values for list.
+//this function requires that list has been allocated memory
+void generateListFromArray(node *list, int datas[], int size);
+
+//this function can remove the surplus nodes which have same data from a non-decreasing linked list
+void removeSameData(node *head);
