@@ -1,0 +1,8 @@
+eclipse.preferences.version=1
+encoding//WebContent/video.jsp=UTF-8
+encoding//src/com/moodlevideo/server/controller/VideoJobController.java=UTF-8
+encoding//src/com/moodlevideo/server/service/impl/VideoJobServiceImpl.java=UTF-8
+encoding//src/com/moodlevideo/server/task/DBcon.java=UTF-8
+encoding//src/com/moodlevideo/server/task/MoodleTaskJob.java=UTF-8
+encoding//src/com/moodlevideo/server/task/RankStatistics.java=UTF-8
+encoding//src/com/moodlevideo/server/task/StudentVideoStatistics.java=UTF-8

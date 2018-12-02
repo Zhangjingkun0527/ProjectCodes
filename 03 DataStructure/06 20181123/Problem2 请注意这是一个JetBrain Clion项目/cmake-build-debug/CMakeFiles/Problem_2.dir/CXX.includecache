@@ -1,0 +1,22 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem 2/definitions.h
+cstdio
+-
+cstdlib
+-
+string
+-
+stack
+-
+
+C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem 2/main.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem 2/definitions.h
+

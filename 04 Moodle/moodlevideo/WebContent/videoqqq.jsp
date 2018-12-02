@@ -3,6 +3,10 @@
 <head>
     <meta charset="UTF-8"/>
     <title>Moodle Video Platform</title>
+
+    <!--2018-11-06张靖昆添加 由于在tomcat中添加了https访问机制，因此需要对http资源自动转变为Https访问
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />-->
+
     <link href="http://www.jq22.com/jquery/bootstrap-3.3.4.css" rel="stylesheet">
     <script src="http://www.jq22.com/jquery/1.11.1/jquery.min.js"></script>
     <link href="${pageContext.request.contextPath}/css/star-rating.css" media="all" rel="stylesheet" type="text/css"/>

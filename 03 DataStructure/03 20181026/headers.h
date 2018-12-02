@@ -1,45 +1,43 @@
 #include <cstdio>
 #include <cstdlib>
-#include <cmath>
 
-//define binary tree node
+#ifndef ONLY_COUNT
+#define ONLY_COUNT 1
+#endif
+
+#ifndef ONLY_PRINT
+#define ONLY_PRINT 2
+#endif
+
+//定义二叉树结点的结构体 
 typedef struct BiTreeNode{
-	char data;
-	struct BiTreeNode *leftChild;
-	struct BiTreeNode *rightChild;
-}BiTreeNode;
+	char data; //结点值
+	struct BiTreeNode *lchild; //左孩子结点
+	struct BiTreeNode *rchild; //右孩子结点
+}BiTreeNode; 
 
-/*
-	findAllLeaves functions
-*/
-//this function is defined to print all leaves which are stored in an array
-void printAllLeavesFromArray(char *arr);
-
-//this function is defined to print all leaves which are stored in nodes
-void printfAllLeavesFromNodes(BiTreeNode *root);
 
 
 /*
-	inputUtil functions
+    getAllLeaves的相关函数定义 
 */
-//this function is defined to print example for inputing binary tree conveniently, 
-//and return the amout of nodes in the binary tree
-int printExample();
 
-//this function is defined to convert char array into binary tree array
-char * convertArrIntoBTreeArray(char *arr);
+//该函数打印所有叶子结点的值 
+void outputAllLeaves(BiTreeNode *root, int countOrPrint);
 
-//this function is defined to create char array from input stream
-char * convertInputToArray();
+//该函数获取所有叶子结点的个数 
+int getNumOfLeaves(BiTreeNode *root);
 
-//this function is defined to judge whether index you input is legal
-bool isIndexLegal(int *indexes, int size, int index, bool isFirstIndex);
 
-//this function is defined to calculate index according to  the chars you input
-int calculateIndex(char *indexArray, int size);
+/*
+	inputUtil的相关函数定义 
+*/
 
-//this function is defined to calculate the length of char array from scanning
-int calculateSizeOfArray(char *arr);
+//该函数返回根据输入创建的二叉树根结点指针 
+BiTreeNode *getRootOfBinaryTreeFromInput();
 
-//this function is defined to judge whether the index you input is digital
-bool areAllCharsDigital(char *arr);
+//该函数将存储二叉树值的二维数组转化为二叉树结构
+BiTreeNode *convertCharArrayIntoBiTreeNode(char **datas, BiTreeNode *root, int index);
+
+//定义输入函数，从console端获取输入的二叉树数据，以A-B-L形式表示父节点-子节点-左孩子，返回拆分过后的BiTreeNode二维数组
+char **getInputData();

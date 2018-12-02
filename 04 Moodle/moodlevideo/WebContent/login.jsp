@@ -1,9 +1,12 @@
 <%@ page contentType="text/html; charset=utf-8"%>
 <!DOCTYPE html>  
 <html lang="en">  
-<head>  
+<head>
     <meta http-equiv="Content-Type" content="text/html" charset="UTF-8">  
-    <title>Login</title>  
+    <title>Login</title>
+
+    <!--2018-11-06张靖昆添加 由于在tomcat中添加了https访问机制，因此需要对http资源自动转变为Https访问
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />-->
 
     <script src="http://www.jq22.com/jquery/1.11.1/jquery.min.js"></script>
     <link href="/moodlevideo/css/login.css" rel="stylesheet" type="text/css"/>  

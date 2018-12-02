@@ -24,7 +24,7 @@ void invertTheLinkedList(node *headNode){
 	pre->next = NULL;
 	
 	//when p is NULL, the list is traversed.
-	//in each time, let node temp mark current the next node of p down, the let the next node p be pre, pre be p, p be temp
+	//in each time, let node temp mark current the next node of p down, then let the next node p be pre, pre be p, p be temp
 	node *temp;
 	while(p != NULL){
 		temp = p->next;

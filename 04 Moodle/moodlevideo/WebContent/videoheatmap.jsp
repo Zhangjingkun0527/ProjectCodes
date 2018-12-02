@@ -5,6 +5,9 @@
     <script src="/moodlevideo/js/echarts.min.js"></script>
     <script src="/moodlevideo/js/jquery-1.9.0.min.js"></script>
 
+    <!--2018-11-06张靖昆添加 由于在tomcat中添加了https访问机制，因此需要对http资源自动转变为Https访问
+    <meta http-equiv="Content-Security-Policy" content="upgrade-insecure-requests" />-->
+
     <style type="text/css">
         body{ background-color: #D8EFFD;} 
     </style>

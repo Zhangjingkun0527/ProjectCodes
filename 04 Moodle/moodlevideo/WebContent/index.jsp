@@ -4,7 +4,6 @@
   <head>
    
     <title>MoodleVideoServer</title>
-	
   </head>
   
   <body>

@@ -1,0 +1,41 @@
+"C:\Program Files\JetBrains\CLion 2018.2.6\bin\cmake\win\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" "C:\Project Assignments\02 Codes\03 DataStructure\06 20181123\Problem7 请注意这是一个JetBrain Clion项目"
+-- The C compiler identification is GNU 6.3.0
+-- The CXX compiler identification is GNU 6.3.0
+-- Check for working C compiler: C:/MinGW/bin/gcc.exe
+-- Check for working C compiler: C:/MinGW/bin/gcc.exe -- broken
+CMake Error at C:/Program Files/JetBrains/CLion 2018.2.6/bin/cmake/win/share/cmake-3.12/Modules/CMakeTestCCompiler.cmake:52 (message):
+  The C compiler
+
+    "C:/MinGW/bin/gcc.exe"
+
+  is not able to compile a simple test program.
+
+  It fails with the following output:
+
+    Change Dir: C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem7 璇锋敞鎰忚繖鏄竴涓狫etBrain Clion椤圭洰/cmake-build-debug/CMakeFiles/CMakeTmp
+    
+    Run Build Command:"C:/MinGW/bin/mingw32-make.exe" "cmTC_88068/fast"
+    C:/MinGW/bin/mingw32-make.exe -f CMakeFiles\cmTC_88068.dir\build.make CMakeFiles/cmTC_88068.dir/build
+    mingw32-make.exe[1]: Entering directory 'C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem7 璇锋敞鎰忚繖鏄竴涓狫etBrain Clion椤圭洰/cmake-build-debug/CMakeFiles/CMakeTmp'
+    Building C object CMakeFiles/cmTC_88068.dir/testCCompiler.c.obj
+    C:\MinGW\bin\gcc.exe    -o CMakeFiles\cmTC_88068.dir\testCCompiler.c.obj   -c "C:\Project Assignments\02 Codes\03 DataStructure\06 20181123\Problem7 鐠囬攱鏁為幇蹇氱箹閺勵垯绔存稉鐙玡tBrain Clion妞ゅ湱娲癨cmake-build-debug\CMakeFiles\CMakeTmp\testCCompiler.c"
+    gcc.exe: error: C:\Project Assignments\02 Codes\03 DataStructure\06 20181123\Problem7 鐠囬攱鏁為幇蹇氱箹閺勵垯绔存稉鐙玡tBrain Clion妞ゅ湱娲癨cmake-build-debug\CMakeFiles\CMakeTmp\testCCompiler.c: No such file or directory
+    gcc.exe: fatal error: no input files
+    compilation terminated.
+    CMakeFiles\cmTC_88068.dir\build.make:64: recipe for target 'CMakeFiles/cmTC_88068.dir/testCCompiler.c.obj' failed
+    mingw32-make.exe[1]: *** [CMakeFiles/cmTC_88068.dir/testCCompiler.c.obj] Error 1
+    mingw32-make.exe[1]: Leaving directory 'C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem7 璇锋敞鎰忚繖鏄竴涓狫etBrain Clion椤圭洰/cmake-build-debug/CMakeFiles/CMakeTmp'
+    Makefile:120: recipe for target 'cmTC_88068/fast' failed
+    mingw32-make.exe: *** [cmTC_88068/fast] Error 2
+    
+
+  
+
+  CMake will not be able to correctly generate this project.
+Call Stack (most recent call first):
+  CMakeLists.txt:2 (project)
+
+
+-- Configuring incomplete, errors occurred!
+See also "C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem7 璇锋敞鎰忚繖鏄竴涓狫etBrain Clion椤圭洰/cmake-build-debug/CMakeFiles/CMakeOutput.log".
+See also "C:/Project Assignments/02 Codes/03 DataStructure/06 20181123/Problem7 璇锋敞鎰忚繖鏄竴涓狫etBrain Clion椤圭洰/cmake-build-debug/CMakeFiles/CMakeError.log".

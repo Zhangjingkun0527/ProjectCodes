@@ -1,145 +1,122 @@
-#include "headers.h"
-#include "Externs.h"
+#include "headers.h" 
+//定义该文件内的全局变量，用于记录根结点的下标 
+int indexOfRoot = -1;
 
-char * convertArrIntoBTreeArray(char *arr){
-	if(arr == NULL) return NULL;
-	
-	//calculate the size of btree array
-	int sizeOfBtreeArray = pow(2, ceil(log(maxIndexOfBTree + 1) / log(2))) - 1;
-	char *btreeArr = (char *)malloc(sizeof(char) * sizeOfBtreeArray);
-	for(int i = 0; i < sizeOfBtreeArray; i++)
-		btreeArr[i] = '\n';
-	
-	for(int i = 0; i < sizeOfArrayFromInput; i++){
-		btreeArr[indexesOfBTree[i]] = arr[i];
-	}
-	return btreeArr;
+//该函数返回根据输入创建的二叉树根结点指针 
+BiTreeNode *getRootOfBinaryTreeFromInput(){
+	char **datas = getInputData();
+	BiTreeNode *root;
+	root = convertCharArrayIntoBiTreeNode(datas, NULL, indexOfRoot);
+	return root;
 }
 
-//this function is defined to create char array from input stream
-char * convertInputToArray(){
-	sizeOfArrayFromInput = printExample();
-	if(sizeOfArrayFromInput == 0) return NULL;
+//根据数组递归创建二叉树 
+BiTreeNode *convertCharArrayIntoBiTreeNode(char **datas, BiTreeNode *root, int index){
+	//当递归查询遇到叶节点时，则返回NULL 
+	if(datas[index][0] == '\n') return NULL;
 	
-	//for save indexes that are converted from chars and chars
-	indexesOfBTree = (int *)malloc(sizeof(int) * sizeOfArrayFromInput);
-	char *BTreeArray = (char *)malloc(sizeof(char) * sizeOfArrayFromInput);
-	for(int i = 0; i < sizeOfArrayFromInput; i++){
-		BTreeArray[i] = '\0';
-	}
-	
-	int indexer = -1;
-	//create binary tree from input stream
-	for(int i = 0; i < sizeOfArrayFromInput; i++){
-		char temp[10];
-		for(int j = 0; j < 2; j++){
-			scanf("%s", &temp);
-			//first scanning for getting index whose length could be larger than 1
-			bool legalResult = true;
-			if(j == 0){
-				if(!areAllCharsDigital(temp)){
-					printf("The index you input must be digital!!Please reenter!!\n");
-					legalResult = false;
-					i--;
-					continue;
-				}
-				
-				int index = calculateIndex(temp, calculateSizeOfArray(temp));
-				//if index is not legal, we should remind user to reenter
-				legalResult = isIndexLegal(indexesOfBTree, sizeOfArrayFromInput, index, i == 0);
-				if(legalResult){
-					indexesOfBTree[++indexer] = index;
-					if(i == sizeOfArrayFromInput - 1) 
-						maxIndexOfBTree = index;
-				}else{
-					if(i == 0){
-						printf("The binary tree must have a root node whose index must be 0!Please reenter!\n");
-					}else{
-						printf("The node you input is not legal!Because there is no father node in the nodes you've been input!Please reenter!\n");	
-					}
-					i--;
-				}
-			}else{
-				//second scanning for getting the data of node, and the lengh of data can only be 1
-				if(legalResult)	{
-					BTreeArray[indexer] = temp[0];
-				}
-			}
-			
-		}
-	}
-	return BTreeArray;
-}
+	//非叶节点，首先给root分配空间 
+	root = (BiTreeNode *)malloc(sizeof(BiTreeNode));
 
-//this function is defined to print example for inputing binary tree conveniently, 
-//and return the amout of nodes in the binary tree
-int printExample(){
-	printf("Please input the amount of nodes, and press enter key for ending:\n");
-	char temp[10];
-	scanf("%s", &temp);
+	//非叶节点的值为datas数组中对应下标父结点值
+	root->data = datas[index][0];
+	root->lchild = NULL;
+	root->rchild = NULL;
 	
-	while(c != ){
-		printf("The amount must be larger than zero! Please reenter!\n");
-		scanf("%d", &a);
+	//为左孩子赋值 
+	BiTreeNode *templ = convertCharArrayIntoBiTreeNode(datas, root->lchild, datas[index][1]);
+	//如果templ是NULL，则说明左孩子是叶子结点，直接为其赋值 
+	if(templ == NULL && datas[index][1] != '\n'){
+		root->lchild = (BiTreeNode *)malloc(sizeof(BiTreeNode));
+		root->lchild->data = datas[index][1];
+		root->lchild->lchild = NULL;
+		root->lchild->rchild = NULL;
+	}else root->lchild = templ;
+	
+	//为右孩子赋值 
+	BiTreeNode *tempr = convertCharArrayIntoBiTreeNode(datas, root->rchild, datas[index][2]);
+	//如果tempr是NULL，则说明右孩子是叶子结点，直接为其赋值 
+	if(tempr == NULL && datas[index][2] != '\n'){
+		root->rchild = (BiTreeNode *)malloc(sizeof(BiTreeNode));
+		root->rchild->data = datas[index][2];
+		root->rchild->lchild = NULL;
+		root->rchild->rchild = NULL;
+	}else root->rchild = tempr;
+	
+	return root;
+} 
+
+//定义输入函数，从console端获取输入的二叉树数据，以A-B-L形式表示父节点-子节点-左孩子，返回拆分过后的BiTreeNode二维数组
+//由于提前认定二叉树结点中的data值只能为Char，从而可以用哈希表来做 ，长度给定256个ASCII字符 
+char **getInputData(){
+	//用二维数组存储所有的值 
+	char **datas = (char **)malloc(sizeof(char *) * 256);
+	for(int i = 0; i < 256; i++){
+		//每行存储3个值即根结点值(0)、左孩子节点值(1)、右孩子结点值(2)，全部初始化为'\n' 
+		datas[i]  = (char *)malloc(sizeof(char) * 4);
+		datas[i][0] = datas[i][1] = datas[i][2] = '\n';
 	}
 	
-	printf("Please input each char data of the binary tree node, if there is no data for a node please just press enter:\n\n");
-	printf("*****Note: you should input nodes like this:*****\n");
-	printf("0 A\n");
-	printf("5 D\n\n");
-	printf("The first number indicates the index of node, which begins at 0, and after a space you should input the data.");
-	printf("We could only support the char data! ***And the indexes must be in an ascending order!!***\n\n");
+	//首先设置根节点 
+	printf("请先输入根结点的值，值只能是ACSII字符：\n");
+	char root;
+	scanf("%c", &root);
+	indexOfRoot = root;
 	
-	return a;
-}
+	printf("\n\n");
+	printf("请输入二叉树的所有结点关系，以A-B-L形式输入，其中A表示父节点值，B表示孩子结点值，L表示左右孩子结点的标记。\n\n");
+	printf("***若父节点是二叉树根结点，请以A-B-L-t或A-B-L-T单独标识。最终的结尾以单个符号'#'结束：***\n\n");
 
-//this function is define to calculate index according to the chars you input
-int calculateIndex(char *indexArray, int size){
-	if(!size) return -1;
+	
+	//定义临时数组用于暂存输入的数据
+	char temp[8];
 	int index = 0;
-	int temp = 0;
-	for(int i = size - 1; i >= 0; i--){
-		temp = indexArray[i] - '0';
-		index += temp * pow(10, size - 1 - i);
-	}
-	return index;
-}
-
-//this function is defined to judge whether index you input is legal
-bool isIndexLegal(int *indexes, int size, int index, bool isFirstIndex){
-	if(isFirstIndex){
-		return index == 0;
-	}else{
-		//check whether the index is legal, which means that we should check the node we input whether has a farther
-		//which has been created already.
-		bool isIndexLegal = false;
-		for(int k = 0; k <= size; k++){
-			if(indexes[k] * 2 + 1 == index || indexes[k] * 2 + 2 == index)
-				isIndexLegal = true;
+	while(1) {
+		scanf("%s", temp);
+		
+		//遇到单个符号'#'时终止输入 
+		if(temp[0] == '#')  break;
+		
+		//将父节点的值作为哈希数组下标 
+		index = temp[0];
+		
+		//判断当前结点是否为父节点，如果是则给indexOfRoot赋值 
+		if((temp[6] == 'T' || temp[6] == 't') && indexOfRoot != -1){
+			indexOfRoot = index;
 		}
-		return 	isIndexLegal;
+		
+		//定义该变量是为了简化代码 
+		bool isLeftChild = temp[4] == 'L' || temp[4] == 'l';
+		datas[index][0] = temp[0];
+		if(temp[4] == 'L' && datas[index][1] == '\n'){
+			datas[index][1] = temp[2];
+			continue;
+		}else if(temp[4] == 'L' && datas[index][1] != '\n'){
+			//当输入的结点对已经存在时，判断是否要覆盖 
+			printf("根结点为%c的左孩子结点已经存在，值为%c，是否覆盖，是输入1，反之输入0：\n", temp[4], datas[index][1]);
+			char c;
+			scanf("%c", &c);
+			if(c == '1'){
+				datas[index][1] = temp[2];
+			}
+			continue;
+		}
+		
+		bool isRightChild = temp[4] == 'R' || temp[4] == 'r';
+		if(isRightChild && datas[index][2] == '\n'){
+			datas[index][2] = temp[2];
+			continue;
+		}else if(isRightChild && datas[index][2] != '\n'){
+			//当输入的结点对已经存在时，判断是否要覆盖 
+			printf("根结点为%c的左孩子结点已经存在，值为%c，是否覆盖，是输入1，反之输入0：\n", temp[4], datas[index][1]);
+			char c;
+			scanf("%c", &c);
+			if(c == '1'){
+				datas[index][2] = temp[2];
+			}
+			continue;
+		}
 	} 
-}
-
-//this function is defined to calculate the length of char array from scanning
-int calculateSizeOfArray(char *arr){
-	int i = 0;
-	char c = arr[i];
-	while(c != '\0'){
-		i++;
-		c = arr[i];
-	}
-	return i;
-}
-
-//this function is defined to judge whether the index you input is digital
-bool areAllCharsDigital(char *arr){
-	bool result = true;
-	int i = 0;
-	char c = arr[i];
-	while(c != '\0'){
-		result &= c >= '0' && c <= '9';
-		c = arr[++i];
-	}
-	return result;
+	
+	return datas; 
 }
