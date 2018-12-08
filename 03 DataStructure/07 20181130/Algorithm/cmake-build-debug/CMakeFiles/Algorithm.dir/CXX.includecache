@@ -1,0 +1,46 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+cstdio
+-
+cstdlib
+-
+ctime
+-
+functional
+-
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/heap_sort_using_ternary_tree.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/insert_sort.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/main.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/merge_sort.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/quick_sort.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/random_number_generator.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/util.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/07 20181130/Algorithm/definitions.h
+
