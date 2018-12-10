@@ -8,7 +8,7 @@ SET @column_name_of_value = 'CtfId';
 
 /*create TEMPORARY table for storing count result*/
 DROP TABLE IF EXISTS tmp_table;
-CREATE TABLE tmp_table (id_table INT(10) NOT NULL);
+CREATE TEMPORARY TABLE tmp_table (id_table INT(10) NOT NULL);
 
 DROP PROCEDURE IF EXISTS get_distinct_values;
 DELIMITER //
@@ -26,6 +26,7 @@ CREATE PROCEDURE get_distinct_values()
 DELIMITER ;
 
 DROP PROCEDURE IF EXISTS count_not_null_values;
+DROP VIEW IF EXISTS tmp_view;
 DELIMITER //
 CREATE PROCEDURE count_not_null_values()
 	BEGIN
