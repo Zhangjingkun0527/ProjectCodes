@@ -3,8 +3,20 @@
 SET GLOBAL log_bin_trust_function_creators = TRUE;
 USE test;
 SET @database_name = 'test';
-SET @table_name = 'student';
-SET @target_table = 'users_owning_chinese_identity_card';
+SET @table_name = 'cdsgus';
+/*@base_column_name is judgment standard for split tabel, and alse the most important column*/
+SET @base_column_name = 'CtfId';
+SET @chinese_table = 'users_owning_chinese_identity_card';
+SET @non_chinese_table = 'users_not_owning_chinese_identity_card';
+SET @target_database = 'test';
+
+/*this variable is the set of column names of origin table which splited by comma*/
+SET @origin_column_names = 'Name, CtfId, Gender, Birthday, Address, Zip, Mobile, Tel, EMail, Nation, Version, id';
+/*this variable is the set of column names of target table which splited by comma*/
+SET @target_column_names = 'name, identity_number, gender, birthday, contact_address, zip, mobile, tel_number, email, nation, register_date, id_cdsgus';
+/*these two variables is defined for verifying chinese id*/
+SET @chinese_target_table = 'users_owning_chinese_identity_card';
+SET @non_chinese_target_table = 'users_not_owning_chinese_identity_card';
 
 /*regelar expression*/
 SET @chinese_id_18_numbers_regexp = '^[1-9][0-9]{5}((19[0-9]{2})|(200[0-9]))((0[1-9])|(10|11|12))(([0-2][1-9])|10|20|30|31)[0-9]{3}[0-9Xx]$';
@@ -31,7 +43,7 @@ BEGIN
 			SET @indexer = 18 - @count_of_columns;
 			SET @column_name = CONCAT('param_', @indexer);
 			IF NOT EXISTS (SELECT COLUMN_NAME FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA = @database_name AND TABLE_NAME = 'validate_params' AND COLUMN_NAME = @column_name) THEN
-				SET @add_column_statement = CONCAT( 'ALTER TABLE validate_params ADD COLUMN ', @column_name, ' VARCHAR(10)' );
+				SET @add_column_statement = CONCAT('ALTER TABLE validate_params ADD COLUMN ', @column_name, ' VARCHAR(10)');
 				PREPARE add_column_statement FROM	@add_column_statement;
 				EXECUTE add_column_statement;
 				
@@ -44,157 +56,6 @@ DELIMITER ;
 CALL create_param_table();
 
 
-
-/*
- * this procedure is defined to calulate the verification code according to the 18 id numbers
- */
-DROP PROCEDURE IF	EXISTS calculate_verification_code_for_chinese_id;
-DELIMITER //
-CREATE PROCEDURE calculate_verification_code_for_chinese_id(IN id_number VARCHAR(17), OUT verification_code CHAR(1)) 
-BEGIN
-	IF id_number REGEXP @chinese_id_17_numbers_regexp THEN
-		/*id has 17 numbers needed to be verified*/
-		SET @indexer = 17;
-		SET @sum_of_validate_numbers = 0;
-		
-		WHILE	@indexer > 0 DO
-			/*query param using dynamic sql*/
-			SET @tmp_before_verifying = '';
-			SET @verify_code = 18 - @indexer;
-			
-			SET @column_name_from_verify_code = CONCAT('param_', @verify_code);
-			SET @query_param_statement = CONCAT('SELECT ', @column_name_from_verify_code, ' INTO @tmp_before_verifying FROM validate_params WHERE type = \'chinese_id_18_before_verifying\'');
-			PREPARE query_param_statement FROM @query_param_statement;
-			EXECUTE query_param_statement;
-			DEALLOCATE PREPARE query_param_statement;
-		
-			/*calculate the sum using for verification*/
-			SET @tmp_value = CAST(@tmp_before_verifying AS UNSIGNED INTEGER);
-			SET @each_number_in_id = CAST(SUBSTRING(id_number, 18 - @indexer, 1) AS UNSIGNED INTEGER);
-			SET @sum_of_validate_numbers = @sum_of_validate_numbers + @tmp_value * @each_number_in_id;
-			SET @indexer = @indexer - 1;
-		END WHILE;
-		
-		/*this is the verification code by calculating*/
-		SET verification_code = MOD(@sum_of_validate_numbers, 11) + 1;
-	ELSE 
-		SET verification_code = '';
-	END IF;
-END // 
-DELIMITER ;
-
-
-
-/*
- * this function is defined to determine whether the id_number with numbers is validated
- */
-DROP FUNCTION IF EXISTS is_id_15_numbers_validated;
-DELIMITER //
-CREATE FUNCTION is_id_15_numbers_validated(id_number VARCHAR(15)) 
-RETURNS SMALLINT 
-BEGIN
-	IF id_number REGEXP @chinese_id_15_numbers_regexp THEN
-		/*get the city code and verify it*/
-		SET @city_code_str = SUBSTRING( id_number, 1, 6 );
-		SET @city_code = CAST( @city_code_str AS UNSIGNED INT );
-		IF EXISTS (SELECT * FROM city_codes_chn WHERE `code` = @city_code) THEN
-			RETURN TRUE;
-		ELSE 
-			RETURN FALSE;
-		END IF;
-	ELSE 
-		RETURN FALSE;
-	END IF;
-END // 
-DELIMITER ;
-
-
-
-/*
- * this function is defined to convert id having 15 numbers to 18numbers and if the 15numbers is not validated then   
- * return empty string
- */
-DROP PROCEDURE IF	EXISTS convert_15_to_18_for_id_number;
-DELIMITER //
-CREATE PROCEDURE convert_15_to_18_for_id_number(IN id_number VARCHAR(15), OUT result VARCHAR(18)) 
-BEGIN
-	IF id_number REGEXP @chinese_id_15_numbers_regexp THEN
-		/*insert 19 to the 15 id numbers*/
-		SET @tmp = CONCAT(SUBSTRING(id_number, 1, 6), '19', SUBSTRING( id_number, 7));
-		SET @verification_code = '';
-		CALL calculate_verification_code_for_chinese_id (@tmp, @verification_code);
-		
-		SET @final_verification_code = '';
-		SET @query_statement = CONCAT( 'SELECT param_', @verification_code, ' INTO @final_verification_code FROM validate_params WHERE type = \'chinese_id_18_for_verifying\'' );
-		PREPARE query_statement FROM @query_statement;
-		EXECUTE query_statement;
-		
-		/*return the final result*/
-		SET result = CONCAT(@tmp, @final_verification_code);
-	ELSE 
-		SET result = '';
-	END IF;
-END // 
-DELIMITER ;
-
-
-
-/*
- * this function is defined to verify the id having 18 numbers or 17 numbers with a letter
- */
-DROP PROCEDURE IF	EXISTS is_id_18_numbers_validated;
-DELIMITER //
-CREATE PROCEDURE is_id_18_numbers_validated(IN id_number VARCHAR(18), OUT result SMALLINT(1)) 
-BEGIN
-	/*if the id_number is not a validated id having 18 numbers, then return false*/
-	IF id_number REGEXP @chinese_id_18_numbers_regexp THEN
-		SET @verify_code = '';
-		CALL calculate_verification_code_for_chinese_id(SUBSTRING(id_number, 1, 17), @verify_code);
-		
-		/*get the verify code*/
-		SET @column_name_from_verify_code = CONCAT('param_', @verify_code);
-		SET @result_of_getting_param = '';
-		SET @get_param_statement = CONCAT('SELECT ', @column_name_from_verify_code, ' INTO @result_of_getting_param FROM validate_params WHERE type = \'chinese_id_18_for_verifying\'');
-		PREPARE get_param_statement	FROM @get_param_statement;
-		EXECUTE get_param_statement;
-		DEALLOCATE PREPARE get_param_statement;
-		
-		/*compare query result and result of calculation*/
-		SET @validate_number = SUBSTRING(id_number, 18, 1);
-		SET result = @result_of_getting_param <=> IF(@validate_number <=> 'x', UPPER(@validate_number), @validate_number);
-	ELSE 
-		SET result = FALSE;
-	END IF;
-END // 
-DELIMITER ;
-
-
-/*
- *this function is defined for remove elements which are not digit or letter x
- */
-DROP FUNCTION IF EXISTS drop_non_digit_or_letter_x;
-DELIMITER //
-CREATE FUNCTION drop_non_digit_or_letter_x(str VARCHAR(255)) 
-RETURNS VARCHAR(255) 
-BEGIN
-	/*get the string trimmed*/
-	SET @tmp_str_trimmed = TRIM(str);
-	SET @length_of_tmp = LENGTH(@tmp_str_trimmed);
-	SET @indexer = 1;
-	SET @result = '';
-	
-	/*remove the elements which are not digit or letter x */
-	WHILE	@indexer <= @length_of_tmp DO
-		SET @tmp = SUBSTRING(str, @indexer, 1);
-		IF @tmp REGEXP '^[0-9Xx]' THEN
-			SET @result = CONCAT(@result, @tmp);
-		END IF;
-		SET @indexer = @indexer + 1;
-	END WHILE;
-
-	RETURN @result;
-END // 
-DELIMITER ;
 
 /*
  * this prodeure is trying to find the id number from other columns, this procedure is called by procedure find_id_number_from_other_columns
@@ -268,9 +129,9 @@ for_leave_procedure : BEGIN
 			DEALLOCATE PREPARE query_statement;
 			/*for id column, we dont need to concern it*/
 			IF @query_result != 'id' THEN
-				SET @id_number_extracted = '';
-				
+				SET @id_number_extracted = '';				
 				CALL find_id_number_from_other_columns_processing_function(@query_result, @id_number_extracted);
+				
 				/*if the @id_number_extracted is not null, then mission is completed*/
 				IF !ISNULL(@id_number_extracted) AND LENGTH(TRIM(@id_number_extracted)) THEN
 					SET id_number = @id_number_extracted;
@@ -283,14 +144,52 @@ for_leave_procedure : BEGIN
 END // 
 DELIMITER ;
 
+/* 
+ *  this procedure is the main processing part in main procedure. The cause of creation is to 
+ reduce the complexity of main procedure
+ */
+DROP PROCEDURE IF EXISTS processing_id_numbers_and_do_insertion;
+DELIMITER //
+CREATE PROCEDURE processing_id_numbers_and_do_insertion(IN id INT, IN str VARCHAR(255))
+BEGIN
+	SET @is_a_validated_id_number_having_18_numbers = FALSE;
+	CALL is_id_18_numbers_validated(str, @is_a_validated_id_number_having_18_numbers);
+	/*firstly, we need to judge whether the string is a 18 id number, according to regular expression*/
+	IF @is_a_validated_id_number_having_18_numbers THEN
+		/*if the it's validated, then we will add the record into the new table*/
+		CALL insert_one_record_to_target_table_using_column_names(@origin_column_names, @target_column_names, id, @chinese_table, @target_database, @table_name, @database_name);
+	ELSE
+		/*if the id number is not a 18 id number, and we need to judge whether the id number is a 15 id number*/
+		IF is_id_15_numbers_validated(str) THEN
+			/*if the id numbr is a 15 id number according to regular expression*/
+			SET @converted_to_18_numbers = '';
+			CALL convert_15_to_18_for_id_number(str, @converted_to_18_numbers);
+			CALL update_single_column_with_id(id, @converted_to_18_numbers, @base_column_name, @table_name, @database_name);
+			CALL insert_one_record_to_target_table_using_column_names(@origin_column_names, @target_column_names, id, @chinese_table, @target_database, @table_name, @database_name);
+		ELSE
+			/*if the value is not a validated id number, so we need to try to find value from other columns*/
+			SET @corrected_value = '';
+			CALL find_id_number_from_other_columns(@max_number, @corrected_value);
+			/*if we find the proper value ,then update the origin table, and insert it into the chinese table*/
+			IF !ISNULL(@corrected_value) AND LENGTH(TRIM(@corrected_value)) > 0 THEN
+				CALL update_single_column_with_id(id, @corrected_value, @base_column_name, @table_name, @database_name);
+				CALL insert_one_record_to_target_table_using_column_names(@origin_column_names, @target_column_names, id, @chinese_table, @target_database, @table_name, @database_name);
+			ELSE
+			/*if we do not find the proper value , we will insert it into the non chinese table*/
+				CALL insert_one_record_to_target_table_using_column_names(@origin_column_names, @target_column_names, id, @non_chinese_table, @target_database, @table_name, @database_name);
+			END IF;
+		END IF;
+	END IF;
+END //
+DELIMITER ;
 
 
 /*
  * main procedure
  */
-DROP PROCEDURE IF EXISTS create_table_for_users_having_chinese_id;
+DROP PROCEDURE IF EXISTS split_table_to_chinese_and_non_chinese;
 DELIMITER //
-CREATE PROCEDURE create_table_for_users_having_chinese_id() 
+CREATE PROCEDURE split_table_to_chinese_and_non_chinese() 
 BEGIN
 	/*get max id*/
 	SET @max_number = 0;
@@ -298,11 +197,27 @@ BEGIN
 	PREPARE query_statement FROM @query_statement;
 	EXECUTE query_statement;
 	DEALLOCATE PREPARE query_statement;
-	
+
 	/*according to @max_number, do correcting action for each tuple*/
 	WHILE @max_number >= 0 DO
+		SET @query_result = '';
+		SET @get_record_statement = CONCAT('SELECT ', @base_column_name,' INTO @query_result FROM ', @table_name, ' WHERE id = ', @max_number);
+		PREPARE get_record_statement FROM @get_record_statement;
+		EXECUTE get_record_statement;
+		DEALLOCATE PREPARE get_record_statement;
 		
+		/*if the result queried is not null value, then we need to */
+		IF !ISNULL(@query_result) AND LENGTH(TRIM(@query_result)) > 0 THEN
+			CALL processing_id_numbers_and_do_insertion(@max_number, @query_result);
+		END IF;
+	SET @max_number = @max_number - 1;
 	END WHILE;
 END // 
 DELIMITER ;
-/*CALL correct_value_in_key_columns();*/
+
+
+
+/*
+ * the entrance of whole procedure
+ */
+CALL split_table_to_chinese_and_non_chinese();
