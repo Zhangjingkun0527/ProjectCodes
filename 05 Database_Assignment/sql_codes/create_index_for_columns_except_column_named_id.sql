@@ -2,8 +2,8 @@
 
 /*please define your database here, and please change the relative databse and table to yours in the program*/
 /***************please note this:the table name is cdsgus, you should substitute the name************************/
-USE kaifang;
-SET @database_name = 'kaifang';
+USE test;
+SET @database_name = 'test';
 SET @table_name = 'cdsgus';
 
 /*  ***main procedure***  */
