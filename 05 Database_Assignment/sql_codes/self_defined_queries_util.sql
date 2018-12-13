@@ -34,8 +34,8 @@ CREATE PROCEDURE insert_one_record_to_target_table_using_column_names(IN origin_
 BEGIN
 	DECLARE tmp_origin_columns_arr VARCHAR(255);
 	DECLARE tmp_target_columns_arr VARCHAR(255);
-	DECLARE insert_statement_part_1 VARCHAR(255);
-	DECLARE insert_statement_part_2 VARCHAR(255);
+	DECLARE insert_statement_part_1 VARCHAR(1000);
+	DECLARE insert_statement_part_2 VARCHAR(1000);
 	DECLARE flag SMALLINT DEFAULT TRUE;
 	DECLARE index_of_split_symbol_origin INT;
 	DECLARE index_of_split_symbol_target INT;
@@ -65,7 +65,7 @@ BEGIN
 		EXECUTE query_statement;
 		DEALLOCATE PREPARE query_statement;
 		
-		SET insert_statement_part_2 = CONCAT(insert_statement_part_2, '\'', @value_from_origin_table, '\',');
+		SET insert_statement_part_2 = CONCAT(insert_statement_part_2, '\'', drop_illegal_character(@value_from_origin_table), '\',');
 		
 		/*extact column name in target table*/
 		SET index_of_split_symbol_target = LOCATE(',', tmp_target_columns_arr);
