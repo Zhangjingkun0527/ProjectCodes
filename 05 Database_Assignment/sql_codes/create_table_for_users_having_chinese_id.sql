@@ -214,7 +214,7 @@ for_leave : BEGIN
 			/*if the valid value*/
 			SET valid_id_number = CONCAT(unvalid_value_cleared, 
 																		REPEAT(@repeat_character_for_filling, 
-																						18 - CHAR_LENGTH(unvalid_value)
+																						18 - CHAR_LENGTH(unvalid_value_cleared)
 																					)
 																	);
 		END IF;
@@ -382,38 +382,51 @@ for_leave_procedure : BEGIN
 		END WHILE;	
 	/*there may exists valid number which has valid area_ifo and valid birthday in 15 or 18 id*/
 	ELSE
-		IF length_of_str_cleared <=> 14 AND str_cleared REGEXP @fisrt_14_numbers_in_18_id_regexp THEN
-			SET final_corrected_value = '';
-			CALL correct_id_with_valid_area_and_birthday_info(
-						str_cleared, 
-						id, 
-						@birthday_column_name, 
-						@table_name, 
-						@database_name, 
-						final_corrected_value
-						);
-			IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
-				SET id_number = final_corrected_value;
-				LEAVE for_leave_procedure;
-			END IF;
+		IF length_of_str_cleared >= 14 THEN
+			SET indexer = 1;
+			WHILE indexer <= length_of_str_cleared - 14 DO
+				SET tmp_substr = SUBSTRING(str_cleared, indexer, 14);
+				IF tmp_substr REGEXP @fisrt_14_numbers_in_18_id_regexp THEN
+					SET final_corrected_value = '';
+					CALL correct_id_with_valid_area_and_birthday_info(
+								tmp_substr, 
+								id, 
+								@birthday_column_name, 
+								@table_name, 
+								@database_name, 
+								final_corrected_value
+								);
+					IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
+						SET id_number = final_corrected_value;
+						LEAVE for_leave_procedure;
+					END IF;
+				END IF;
+				SET indexer = indexer + 1;
+			END WHILE;
 		END IF;
 		
-		IF length_of_str_cleared <=> 12 AND @fisrt_12_numbers_in_15_id_regexp THEN
-			SET tmp_substr = '';
-			SET final_corrected_value = '';
-			CALL convert_15_to_18_for_id_number(str_cleared, tmp_substr);
-			CALL correct_id_with_valid_area_and_birthday_info(
-						str_cleared, 
-						id, 
-						@birthday_column_name, 
-						@table_name, 
-						@database_name, 
-						final_corrected_value
-						);
-			IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
-					SET id_number = final_corrected_value;
-					LEAVE for_leave_procedure;
-			END IF;
+		IF length_of_str_cleared >= 12 THEN
+			SET indexer = 1;
+			WHILE indexer <= length_of_str_cleared - 12 DO
+				SET tmp_substr = SUBSTRING(str_cleared, indexer, 12);
+				IF tmp_substr REGEXP @fisrt_12_numbers_in_15_id_regexp THEN
+					SET final_corrected_value = '';
+					CALL convert_15_to_18_for_id_number(str_cleared, tmp_substr);
+					CALL correct_id_with_valid_area_and_birthday_info(
+								tmp_substr, 
+								id, 
+								@birthday_column_name, 
+								@table_name, 
+								@database_name, 
+								final_corrected_value
+								);
+					IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
+						SET id_number = final_corrected_value;
+						LEAVE for_leave_procedure;
+					END IF;
+				END IF;
+				SET indexer = indexer + 1;
+			END WHILE;
 		END IF;
 	END IF;
 END // 
