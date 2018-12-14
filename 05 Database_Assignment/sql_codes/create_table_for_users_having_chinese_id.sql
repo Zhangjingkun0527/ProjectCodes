@@ -3,20 +3,20 @@
 SET GLOBAL log_bin_trust_function_creators = TRUE;
 USE kaifang;
 SET @database_name = 'kaifang';
-SET @table_name = 'users_not_owning_chinese_identity_card';
+SET @table_name = 'tmp';
 SET @target_database = 'kaifang';
 /*@base_column_name is judgment standard for split tabel, and alse the most important column*/
-SET @base_column_name = 'identity_number';
-SET @birthday_column_name = 'birthday';
-SET @chinese_table = 'users_owning_chinese_identity_card_copy1';
-SET @non_chinese_table = 'users_not_owning_chinese_identity_card_copy1';
-SET @chinese_table_for_old_area_code = 'users_owning_old_chinese_identity_card_copy1';
+SET @base_column_name = 'CtfId';
+SET @birthday_column_name = 'Birthday';
+SET @chinese_table = 'users_owning_chinese_identity_card';
+SET @non_chinese_table = 'users_not_owning_chinese_identity_card';
+SET @chinese_table_for_old_area_code = 'users_owning_old_chinese_identity_card';
 
-SET @upper_bound_of_id = 75781;
-SET @lower_bound_of_id = 3021;
+SET @upper_bound_of_id = 14000000;
+SET @lower_bound_of_id = 13980000;
 
 /*this variable is the set of column names of origin table which splited by comma*/
-SET @origin_column_names = 'name, identity_number, gender, birthday, contact_address, zip, mobile, tel_number, email, nation, register_date, id_cdsgus';
+SET @origin_column_names = 'Name, CtfId, Gender, Birthday, Address, Zip, Mobile, Tel, EMail, Nation, Version, id';
 /*this variable is the set of column names of target table which splited by comma*/
 SET @target_column_names = 'name, identity_number, gender, birthday, contact_address, zip, mobile, tel_number, email, nation, register_date, id_cdsgus'; 
 
@@ -50,7 +50,7 @@ SET @repeat_character_for_filling = 'X';
  */
 DROP PROCEDURE IF	EXISTS calculate_verification_code_for_chinese_id;
 DELIMITER //
-CREATE PROCEDURE calculate_verification_code_for_chinese_id(IN id_number VARCHAR(255), OUT verification_code VARCHAR(2)) 
+CREATE PROCEDURE calculate_verification_code_for_chinese_id(IN id_number VARCHAR(255), OUT verification_code VARCHAR(10)) 
 BEGIN
 	DECLARE indexer INT DEFAULT 17;
 	DECLARE sum_of_validate_numbers INT DEFAULT 0;
@@ -104,18 +104,6 @@ DELIMITER //
 CREATE FUNCTION is_id_15_numbers_validated(id_number VARCHAR(255)) 
 RETURNS SMALLINT 
 BEGIN
-	/*IF id_number REGEXP @chinese_id_15_numbers_regexp THEN
-		get the city code and verify it
-		SET @city_code_str = SUBSTRING( id_number, 1, 6 );
-		SET @city_code = CAST(@city_code_str AS UNSIGNED INT);
-		IF EXISTS (SELECT * FROM city_codes_chn WHERE `code` = @city_code) THEN
-			RETURN TRUE;
-		ELSE 
-			RETURN FALSE;
-		END IF;
-	ELSE 
-		RETURN FALSE;
-	END IF;*/
 	RETURN TRIM(id_number) REGEXP @chinese_id_15_numbers_regexp;
 END // 
 DELIMITER ;
@@ -158,7 +146,7 @@ BEGIN
 	DECLARE verificatoin_code VARCHAR(5);
 	DECLARE validate_number VARCHAR(50);
 	/*if the id_number is not a validated id having 18 numbers, then return false*/
-	IF TRIM(id_number) REGEXP @chinese_id_18_numbers_regexp THEN
+	IF id_number REGEXP @chinese_id_18_numbers_regexp THEN
 		CALL calculate_verification_code_for_chinese_id(SUBSTRING(id_number, 1, 17), verificatoin_code);
 		
 		/*compare query result and result of calculation*/
@@ -168,7 +156,7 @@ BEGIN
 			SET result = @id_18_numbers_valid;
 		ELSE
 			SET result = @verification_code_not_valid;
-			SET corrected_id_number = CONCAT(SUBSTRING(id_number, 1, 17), validate_number);
+			SET corrected_id_number = CONCAT(SUBSTRING(id_number, 1, 17), verificatoin_code);
 		END IF;
 	ELSE 
 		SET result = @id_18_numbers_not_valid;
@@ -177,13 +165,58 @@ END //
 DELIMITER ;
 
 
+DROP PROCEDURE IF EXISTS correct_id_processing_function_for_id_18_numbers;
+DELIMITER //
+CREATE PROCEDURE correct_id_processing_function_for_id_18_numbers(IN unvalid_value_cleared VARCHAR(50), OUT corrected_value VARCHAR(50)) 
+BEGIN
+	DECLARE the_first_17_numbers VARCHAR(50);
+	DECLARE veirification_code VARCHAR(10);
+	IF CHAR_LENGTH(unvalid_value_cleared) >= 17 THEN
+		SET the_first_17_numbers = LEFT(unvalid_value_cleared, 17);
+		CALL calculate_verification_code_for_chinese_id(the_first_17_numbers, veirification_code);
+		
+		IF !ISNULL(veirification_code) AND CHAR_LENGTH(veirification_code) > 0 THEN
+			SET corrected_value = CONCAT(the_first_17_numbers, veirification_code);
+		ELSE
+			SET corrected_value = CONCAT(SUBSTRING(unvalid_value_cleared, 1, 14), REPEAT(@repeat_character_for_filling, 4));
+		END IF;
+	ELSE
+		/*if the valid value*/
+		SET corrected_value = CONCAT(unvalid_value_cleared, REPEAT(@repeat_character_for_filling, 18 - CHAR_LENGTH(unvalid_value_cleared)));
+	END IF;
+END //
+DELIMITER ;
+
+
+DROP PROCEDURE IF EXISTS correct_id_processing_function_for_id_15_numbers;
+DELIMITER //
+CREATE PROCEDURE correct_id_processing_function_for_id_15_numbers(IN unvalid_value_cleared VARCHAR(50), IN area_info VARCHAR(20), IN birthday VARCHAR(20), OUT corrected_value VARCHAR(50)) 
+BEGIN
+	DECLARE the_first_17_numbers VARCHAR(50);
+	DECLARE veirification_code VARCHAR(10);
+	DECLARE tmp_for_judge VARCHAR(5);
+	SET tmp_for_judge = SUBSTRING(unvalid_value_cleared, 13, 3);
+	IF ISNULL(tmp_for_judge) THEN
+		SET corrected_value = CONCAT(area_info, birthday, REPEAT(@repeat_character_for_filling, 4));
+	ELSE
+		IF tmp_for_judge REGEXP '^[0-9]{3}$' THEN
+			SET the_first_17_numbers = CONCAT(area_info, birthday, SUBSTRING(unvalid_value_cleared, 13, 3));
+			CALL calculate_verification_code_for_chinese_id(the_first_17_numbers, veirification_code);
+			SET corrected_value = CONCAT(the_first_17_numbers, veirification_code);
+		ELSE
+			SET corrected_value = CONCAT(area_info, birthday, REPEAT(@repeat_character_for_filling, 4));
+		END IF;
+	END IF;
+END //
+DELIMITER ;
 
 /*
  *  this procedure is defined to deal with a type of id number, which is not valid by verifying, but its area code and birthday are valid
  */
-DELIMITER //
+
 DROP PROCEDURE IF EXISTS correct_id_with_valid_area_and_birthday_info;
-CREATE PROCEDURE correct_id_with_valid_area_and_birthday_info(IN unvalid_value VARCHAR(255), IN id INT, IN column_name VARCHAR(255), IN table_name VARCHAR(255), IN database_name VARCHAR(255), OUT valid_id_number VARCHAR(255))
+DELIMITER //
+CREATE PROCEDURE correct_id_with_valid_area_and_birthday_info(IN unvalid_value VARCHAR(255), IN id INT, IN column_name VARCHAR(255), IN table_name VARCHAR(255), IN database_name VARCHAR(255), IN is_from_other_column SMALLINT, OUT valid_id_number VARCHAR(255), OUT is_area_info_all_digits SMALLINT)
 for_leave : BEGIN
 	
 	/*declare local variables*/
@@ -192,54 +225,54 @@ for_leave : BEGIN
 	DECLARE area_info VARCHAR(10);
 	DECLARE veirification_code VARCHAR(5) DEFAULT '';
 	DECLARE the_first_17_numbers VARCHAR (30);
-	DECLARE remain_length INT;
 	DECLARE tmp_for_judge VARCHAR(5);
+	DECLARE is_area_info_valid SMALLINT;
 	
 	/*drop all CHARACTERs which are not digits or letter x*/
-	SET unvalid_value_cleared = drop_non_digit_or_letter_x(unvalid_value);
+	SET unvalid_value_cleared = drop_illegal_character(unvalid_value);
 	/*if the area info is not valid then this id in not valid*/
 	SET area_info = LEFT(unvalid_value_cleared, 6);
-	IF LEFT(area_info, 1) <=> '0' THEN
-		SET valid_id_number = unvalid_value;
+	/*if the area_info is valid but not all digits, then it must be unvalid id number, or it may be a valid area info, like some ids which have old area code*/
+	SET is_area_info_valid = is_area_info_validated(area_info);
+	IF !is_area_info_valid AND area_info REGEXP '^[0-9]{6}$' AND LEFT(area_info, 1) != '0' THEN
+		SET birthday = SUBSTRING(unvalid_value_cleared, 7, 8);
+		IF birthday REGEXP @the_yyyy_mm_dd_regexp THEN
+			SET is_area_info_all_digits	= TRUE;
+			CALL correct_id_processing_function_for_id_18_numbers(unvalid_value_cleared, valid_id_number);
+		ELSE
+			SET birthday = SUBSTRING(unvalid_value_cleared, 7, 6);
+			IF birthday REGEXP @the_yy_mm_dd_regexp THEN
+				SET is_area_info_all_digits	= TRUE;
+				CALL correct_id_processing_function_for_id_15_numbers(unvalid_value_cleared, area_info, CONCAT('19', birthday), valid_id_number);
+			ELSE	
+				SET valid_id_number = unvalid_value;
+				SET is_area_info_all_digits = is_from_other_column;
+			END IF;
+		END IF;
 		LEAVE for_leave;
+	ELSE
+		IF !is_area_info_valid THEN
+			SET valid_id_number = unvalid_value;
+			SET is_area_info_all_digits = FALSE;
+			LEAVE for_leave;
+		END IF;
 	END IF;
+	
 	/*firstly, let's consider the yyyy-mm-dd, if it's valid then the id number is useful for data analysis*/
 	SET birthday = SUBSTRING(unvalid_value_cleared, 7, 8);
 	IF birthday REGEXP @the_yyyy_mm_dd_regexp THEN
-		IF CHAR_LENGTH(unvalid_value) >= 17 THEN
-			SET the_first_17_numbers = LEFT(unvalid_value_cleared, 17);
-			CALL calculate_verification_code_for_chinese_id(the_first_17_numbers, veirification_code);
-			SET valid_id_number = CONCAT(the_first_17_numbers, veirification_code);
-		ELSE
-			/*if the valid value*/
-			SET valid_id_number = CONCAT(unvalid_value_cleared, 
-																		REPEAT(@repeat_character_for_filling, 
-																						18 - CHAR_LENGTH(unvalid_value_cleared)
-																					)
-																	);
-		END IF;
+		CALL correct_id_processing_function_for_id_18_numbers(unvalid_value_cleared, valid_id_number);
 	ELSE
 		/*if the birthday is not a yyyy-mm-dd, then we will consider the yy-mm-dd*/
 		SET birthday = SUBSTRING(unvalid_value, 7, 6); 
 		IF birthday REGEXP @the_yy_mm_dd_regexp THEN
 			SET birthday = CONCAT('19', birthday);
-			SET remain_length = CHAR_LENGTH(unvalid_value_cleared) - 12;
 			/*if the birthday is a valid yy-mm-dd, then we should correct the value according to the remain contents*/
-			SET tmp_for_judge = SUBSTRING(unvalid_value_cleared, 15, 1);
-			IF ISNULL(tmp_for_judge) THEN
-				SET valid_id_number = CONCAT(area_info, birthday, REPEAT(@repeat_character_for_filling, 4));
-			ELSE
-				IF tmp_for_judge REGEXP '^[0-9]$' THEN
-					SET the_first_17_numbers = CONCAT(area_info, birthday, SUBSTRING(unvalid_value_cleared, 12, 3));
-					CALL calculate_verification_code_for_chinese_id(the_first_17_numbers, veirification_code);
-					SET valid_id_number = CONCAT(the_first_17_numbers, veirification_code);
-				ELSE
-					SET valid_id_number = CONCAT(area_info, birthday, REPEAT(@repeat_character_for_filling, 4));
-				END IF;
-			END IF;
+			CALL correct_id_processing_function_for_id_15_numbers(unvalid_value_cleared, area_info, birthday, valid_id_number);
 		ELSE
 			IF id < 1 THEN
 				SET valid_id_number = CONCAT(area_info, REPEAT(@repeat_character_for_filling, 12)); 
+				SET is_area_info_all_digits = TRUE;
 				LEAVE for_leave;
 			END IF;
 			/*if the area_info is valid, however the birthday is not valid, the we will try to extact the birthday from cdgus.Birthday to fill*/
@@ -257,6 +290,7 @@ for_leave : BEGIN
 			END IF;
 		END IF;
 	END IF;
+	SET is_area_info_all_digits = TRUE;
 END//
 DELIMITER ;
 
@@ -300,21 +334,22 @@ SELECT @result;*/
  */
 DROP PROCEDURE IF	EXISTS find_id_number_from_other_columns_processing_function;
 DELIMITER //
-CREATE PROCEDURE find_id_number_from_other_columns_processing_function(IN column_value VARCHAR(255), IN id INT, OUT id_number VARCHAR(255)) 
+CREATE PROCEDURE find_id_number_from_other_columns_processing_function(IN column_value VARCHAR(255), IN id INT, IN is_from_other_column SMALLINT, OUT id_number VARCHAR(255), OUT is_area_info_all_digits SMALLINT) 
 for_leave_procedure : BEGIN
 	
 	DECLARE indexer INT DEFAULT 1;
-	DECLARE str_cleared VARCHAR(255);
+	DECLARE str_cleared VARCHAR(1000);
 	DECLARE length_of_str_cleared INT;
 	DECLARE tmp_substr VARCHAR(30);
-	DECLARE result SMALLINT DEFAULT FALSE;
+	DECLARE result SMALLINT;
 	/*clear the tmp string, because it may have some chars which are not digits or letter x*/
 	DECLARE corrected_18_id_number VARCHAR(50) DEFAULT '';
 	DECLARE final_corrected_value VARCHAR(30) DEFAULT '';
 	
-	SET str_cleared = drop_non_digit_or_letter_x(column_value);
+	SET str_cleared = drop_illegal_character(column_value);
 	SET length_of_str_cleared = CHAR_LENGTH(str_cleared);
-	IF length_of_str_cleared >= 15 THEN
+	
+	IF length_of_str_cleared >= 18 THEN
 		/*extract the substr with 18 chars and verify it*/
 		WHILE	indexer <= length_of_str_cleared - 17 DO
 			SET tmp_substr = SUBSTRING(str_cleared, indexer, 18);
@@ -343,9 +378,11 @@ for_leave_procedure : BEGIN
 							@birthday_column_name, 
 							@table_name, 
 							@database_name, 
-							final_corrected_value
+							is_from_other_column,
+							final_corrected_value,
+							is_area_info_all_digits
 							);
-				IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
+				IF CHAR_LENGTH(final_corrected_value) > 0 AND final_corrected_value != tmp_substr THEN 
 					SET id_number = final_corrected_value;
 					LEAVE for_leave_procedure;
 				END IF;
@@ -369,10 +406,12 @@ for_leave_procedure : BEGIN
 							id, 
 							@birthday_column_name, 
 							@table_name, 
-							@database_name, 
-							final_corrected_value
+							@database_name,
+							is_from_other_column,	
+							final_corrected_value,
+							is_area_info_all_digits
 							);
-				IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
+				IF CHAR_LENGTH(final_corrected_value) > 0 AND final_corrected_value !=  tmp_substr THEN 
 					SET id_number = final_corrected_value;
 					LEAVE for_leave_procedure;
 				END IF;
@@ -384,7 +423,7 @@ for_leave_procedure : BEGIN
 	ELSE
 		IF length_of_str_cleared >= 14 THEN
 			SET indexer = 1;
-			WHILE indexer <= length_of_str_cleared - 14 DO
+			WHILE indexer <= length_of_str_cleared - 13 DO
 				SET tmp_substr = SUBSTRING(str_cleared, indexer, 14);
 				IF tmp_substr REGEXP @fisrt_14_numbers_in_18_id_regexp THEN
 					SET final_corrected_value = '';
@@ -393,10 +432,12 @@ for_leave_procedure : BEGIN
 								id, 
 								@birthday_column_name, 
 								@table_name, 
-								@database_name, 
-								final_corrected_value
+								@database_name,
+								is_from_other_column,
+								final_corrected_value,
+								is_area_info_all_digits
 								);
-					IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
+					IF CHAR_LENGTH(final_corrected_value) > 0 AND final_corrected_value !=  tmp_substr THEN 
 						SET id_number = final_corrected_value;
 						LEAVE for_leave_procedure;
 					END IF;
@@ -407,7 +448,7 @@ for_leave_procedure : BEGIN
 		
 		IF length_of_str_cleared >= 12 THEN
 			SET indexer = 1;
-			WHILE indexer <= length_of_str_cleared - 12 DO
+			WHILE indexer <= length_of_str_cleared - 11 DO
 				SET tmp_substr = SUBSTRING(str_cleared, indexer, 12);
 				IF tmp_substr REGEXP @fisrt_12_numbers_in_15_id_regexp THEN
 					SET final_corrected_value = '';
@@ -417,10 +458,12 @@ for_leave_procedure : BEGIN
 								id, 
 								@birthday_column_name, 
 								@table_name, 
-								@database_name, 
-								final_corrected_value
+								@database_name,
+								is_from_other_column,	
+								final_corrected_value,
+								is_area_info_all_digits
 								);
-					IF CHAR_LENGTH(final_corrected_value) > 0 THEN 
+					IF CHAR_LENGTH(final_corrected_value) > 0 AND final_corrected_value !=  tmp_substr THEN 
 						SET id_number = final_corrected_value;
 						LEAVE for_leave_procedure;
 					END IF;
@@ -439,8 +482,9 @@ DELIMITER ;
  */
 DROP PROCEDURE IF	EXISTS find_id_number_from_other_columns;
 DELIMITER //
-CREATE PROCEDURE find_id_number_from_other_columns(IN id INT, OUT id_number VARCHAR(255)) 
+CREATE PROCEDURE find_id_number_from_other_columns(IN id INT, OUT id_number VARCHAR(255), OUT is_area_info_all_digits SMALLINT) 
 for_leave_procedure : BEGIN
+
 	DECLARE flag SMALLINT DEFAULT FALSE;
 	DECLARE tmp VARCHAR(255) DEFAULT '';
 	DECLARE id_number_extracted VARCHAR(30) DEFAULT '';
@@ -466,7 +510,12 @@ for_leave_procedure : BEGIN
 			/*for id column, we don't need to concern it*/
 			IF tmp != 'id' THEN
 				SET id_number_extracted = '';		
-				CALL find_id_number_from_other_columns_processing_function(@query_result, id, id_number_extracted);
+				CALL find_id_number_from_other_columns_processing_function(
+							@query_result, 
+							id, 
+							tmp <=> @base_column_name, 
+							id_number_extracted, 
+							is_area_info_all_digits);
 					
 				/*if the @id_number_extracted is not null, then mission is completed*/
 				IF !ISNULL(id_number_extracted) AND CHAR_LENGTH(id_number_extracted) > 0 THEN
@@ -494,16 +543,16 @@ CREATE PROCEDURE processing_id_numbers_and_do_insertion(IN id INT, IN str VARCHA
 for_leave : BEGIN
 
 	DECLARE corrected_id_having_18_numbers VARCHAR(50) DEFAULT '';
-	DECLARE is_a_validated_id_number_having_18_numbers SMALLINT DEFAULT FALSE;
+	DECLARE is_a_validated_id_number_having_18_numbers SMALLINT;
 	DECLARE converted_to_18_numbers VARCHAR(30) DEFAULT '';
 	DECLARE corrected_value VARCHAR(30) DEFAULT '';
+	DECLARE is_area_info_all_digits SMALLINT;
 	/*firstly, we will judge whether str is a valid id number having 18 numbers*/
 	CALL is_id_18_numbers_validated(
 				str,
 				is_a_validated_id_number_having_18_numbers,
 				corrected_id_having_18_numbers
 				);
-				
 	/*firstly, we need to judge whether the string is a 18 id number, according to regular expression*/
 	IF is_a_validated_id_number_having_18_numbers <=> @id_18_numbers_valid THEN
 		/*if the it's validated, then we will add the record into the new table*/
@@ -519,14 +568,14 @@ for_leave : BEGIN
 					);
 					
 	ELSE
-		IF is_a_validated_id_number_having_18_numbers <=> @verification_code_not_valid THEN
+		IF is_a_validated_id_number_having_18_numbers <=> @verification_code_not_valid THEN	
 			CALL update_single_column_with_id(
 						id, 
 						corrected_id_having_18_numbers, 
 						@base_column_name, 
 						@table_name, 
 						@database_name
-						);			
+						);
 			CALL insert_one_record_to_target_table_using_column_names(
 						@origin_column_names, 
 						@target_column_names, 
@@ -550,7 +599,7 @@ for_leave : BEGIN
 						@base_column_name, 
 						@table_name, 
 						@database_name
-						);			
+						);		
 			CALL insert_one_record_to_target_table_using_column_names(
 						@origin_column_names, 
 						@target_column_names, 
@@ -561,11 +610,12 @@ for_leave : BEGIN
 						@table_name, 
 						@database_name
 						);
+						
 		ELSE
 			/*if the value is not a validated id number, so we need to try to find value from other columns*/
-			CALL find_id_number_from_other_columns(id, corrected_value);
+			CALL find_id_number_from_other_columns(id, corrected_value, is_area_info_all_digits);
 			/*if we find the proper value, then update the origin table, and insert it into the chinese table*/
-			IF !ISNULL(corrected_value) AND CHAR_LENGTH(TRIM(corrected_value)) > 0 AND corrected_value != str THEN
+			IF !ISNULL(corrected_value) AND CHAR_LENGTH(corrected_value) > 0 AND is_area_info_all_digits <=> TRUE THEN
 				CALL update_single_column_with_id(
 							id, 
 							corrected_value, 
