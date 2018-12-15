@@ -55,7 +55,6 @@ public class VideoJobController {
 	
 	@Resource(name = "iVideoJobService")
 	private IVideoJobService iVideoJobService;
-	
 
 	@RequestMapping("upload")
 	public String upload() {

@@ -4,7 +4,7 @@ SET GLOBAL log_bin_trust_function_creators = TRUE;
 USE kaifang;
 SET @database_name = 'kaifang';
 SET @table_name = 'tmp';
-SET @target_database = 'kaifang';
+SET @target_database = 'test';
 /*@base_column_name is judgment standard for split tabel, and alse the most important column*/
 SET @base_column_name = 'CtfId';
 SET @birthday_column_name = 'Birthday';
@@ -12,8 +12,8 @@ SET @chinese_table = 'users_owning_chinese_identity_card';
 SET @non_chinese_table = 'users_not_owning_chinese_identity_card';
 SET @chinese_table_for_old_area_code = 'users_owning_old_chinese_identity_card';
 
-SET @upper_bound_of_id = 14000000;
-SET @lower_bound_of_id = 13980000;
+SET @upper_bound_of_id = 11110000;
+SET @lower_bound_of_id = 11100000;
 
 /*this variable is the set of column names of origin table which splited by comma*/
 SET @origin_column_names = 'Name, CtfId, Gender, Birthday, Address, Zip, Mobile, Tel, EMail, Nation, Version, id';
@@ -322,8 +322,103 @@ SET @result = '';
 CALL correct_the_unvalid_id_into_valid_id_having_18_numbers('320213196004165162', 0, '', '', '', @result);
 SELECT @result;*/
 
+/*
+ * 2018-12-15 added, last attempt to correct id for CtfId value
+ */
+DROP PROCEDURE IF EXISTS last_attempt_to_correct_chinese_id;
+DELIMITER //
+CREATE PROCEDURE last_attempt_to_correct_chinese_id(IN id VARCHAR(50), OUT corrected_id VARCHAR(300), OUT is_area_info_valid SMALLINT)
+for_leave : BEGIN
 
-
+	DECLARE area_info VARCHAR(10);
+	DECLARE birthday VARCHAR(10);
+	DECLARE id_tmp VARCHAR(30);
+	DECLARE tmp VARCHAR(50);
+	DECLARE valid_result SMALLINT;
+	DECLARE corrected_id_tmp VARCHAR(30);
+	DECLARE indexer INT;
+	DECLARE verification_info VARCHAR(30);
+	DECLARE length INT;
+	DECLARE index_of_verification_info INT;
+	
+	DECLARE birthday_selector INT DEFAULT 0;
+	/*for indicating the situation of birthday*/
+	DECLARE birthday_selector_1 INT DEFAULT 1;
+	DECLARE birthday_selector_2 INT DEFAULT 2;
+	
+	IF CHAR_LENGTH(id) < 14 THEN
+		LEAVE for_leave;
+	END IF;
+	
+	/*if the area_info is not valid, then we do not need to do any improvement*/
+	SET area_info = SUBSTRING(id, 1, 6);
+	IF EXISTS (SELECT * FROM city_codes_chn WHERE `code` = area_info) THEN
+		SET is_area_info_valid = TRUE;
+	ELSE
+		IF area_info REGEXP '^[0-9]{6}$' AND LEFT(area_info, 1) != '0' THEN
+			SET is_area_info_valid = FALSE;
+		ELSE
+			SET is_area_info_valid = FALSE;
+			SET corrected_id = '';
+			LEAVE for_leave;
+		END IF;
+	END IF;
+	
+	SET tmp = SUBSTRING(drop_illegal_character(id), 7);
+	/*for bithday, we consider only it may lack of the first number 1 or has redundant 1 for id having 18 numbers
+	 like 41072[]19940527 or like 410721[1]19940527*/
+	SET birthday = CONCAT('1', SUBSTRING(tmp, 1, 7));
+	IF birthday REGEXP @the_yyyy_mm_dd_regexp AND STRCMP(birthday, '19100101') THEN
+		SET birthday_selector = birthday_selector_1;
+		SET id_tmp = CONCAT(area_info, birthday, SUBSTRING(tmp, 8, 4));
+		CALL is_id_18_numbers_validated(id_tmp, valid_result, corrected_id_tmp);
+		IF valid_result <=> @id_18_numbers_valid THEN
+			SET corrected_id = id_tmp;
+			LEAVE for_leave;
+		END IF;
+	ELSE
+		SET birthday = SUBSTRING(tmp, 2, 8);
+		IF birthday REGEXP @the_yyyy_mm_dd_regexp AND STRCMP(birthday, '19100101') THEN
+			SET birthday_selector = birthday_selector_2;
+			SET id_tmp = CONCAT(area_info, birthday, SUBSTRING(tmp, 10, 4));
+			CALL is_id_18_numbers_validated(id_tmp, valid_result, corrected_id_tmp);
+			IF valid_result <=> @id_18_numbers_valid THEN
+				SET corrected_id = id_tmp;
+				LEAVE for_leave;				
+			END IF;
+		ELSE
+			SET birthday = SUBSTRING(tmp, 1, 8);
+			IF !(birthday REGEXP @the_yyyy_mm_dd_regexp) THEN
+				SET corrected_id = CONCAT(area_info, REPEAT(@repeat_character_for_filling, 12));
+				LEAVE for_leave;
+			END IF;
+		END IF;
+	END IF;
+	
+	/*consider the verification info which may cause that id is not valid*/
+	SET indexer = 1;
+	SET index_of_verification_info = IF(birthday_selector <=> birthday_selector_1, 
+																						8, 
+																						IF(birthday_selector <=> birthday_selector_2, 10, 9));
+	SET length = CHAR_LENGTH(SUBSTRING(tmp, index_of_verification_info));
+	WHILE indexer <= length - 3 DO
+		SET id_tmp = CONCAT(area_info, birthday, SUBSTRING(tmp, index_of_verification_info + indexer, 4));
+		CALL is_id_18_numbers_validated(id_tmp, valid_result, corrected_id_tmp);
+		IF valid_result <=> @id_18_numbers_valid THEN
+			SET corrected_id = id_tmp;
+			LEAVE for_leave;
+		END IF;
+		SET indexer = indexer + 1;
+	END WHILE;
+	
+	SET corrected_id = CONCAT(area_info, birthday, REPEAT(@repeat_character_for_filling, 4));
+END //
+DELIMITER ;
+/* test
+SET @result = '';
+SET @sdsdsd = 0;
+CALL last_attempt_to_correct_chinese_id('370205968092055515', @result, @sdsdsd );
+SELECT @result, @sdsdsd;
 
 /***************************************split line*********************************************/
 /********************************below this is the main procedure part*************************/
@@ -364,10 +459,12 @@ for_leave_procedure : BEGIN
 			/*if the substr is a validated id number then leave the procedure*/
 			IF result <=> @id_18_numbers_valid THEN
 				SET id_number = tmp_substr;
+				SET is_area_info_all_digits = TRUE;
 				LEAVE for_leave_procedure;
 			ELSE
 				IF result <=> @verification_code_not_valid THEN
 					SET id_number = corrected_18_id_number;
+					SET is_area_info_all_digits = TRUE;
 					LEAVE for_leave_procedure;
 				END IF;
 				/*for each tmp_str with 18 numbers, if the verification failed, we should consider the situation: it has a valid area info and a valid birthday*/
@@ -397,6 +494,7 @@ for_leave_procedure : BEGIN
 			SET tmp_substr = SUBSTRING(str_cleared, indexer, 15);
 			IF is_id_15_numbers_validated(tmp_substr) THEN
 				CALL convert_15_to_18_for_id_number(tmp_substr, id_number);
+				SET is_area_info_all_digits = TRUE;
 				LEAVE for_leave_procedure;
 			ELSE
 				/*for each tmp_str with 15 numbers, if the verification failed, we should consider the situation: it has a valid area info and a valid birthday*/
@@ -508,7 +606,7 @@ for_leave_procedure : BEGIN
 			DEALLOCATE PREPARE query_statement;
 
 			/*for id column, we don't need to concern it*/
-			IF tmp != 'id' THEN
+			IF tmp != 'id' AND tmp != @base_column_name THEN
 				SET id_number_extracted = '';		
 				CALL find_id_number_from_other_columns_processing_function(
 							@query_result, 
@@ -566,7 +664,6 @@ for_leave : BEGIN
 					@table_name, 
 					@database_name
 					);
-					
 	ELSE
 		IF is_a_validated_id_number_having_18_numbers <=> @verification_code_not_valid THEN	
 			CALL update_single_column_with_id(
@@ -634,16 +731,39 @@ for_leave : BEGIN
 							@database_name
 							);
 			ELSE
-				/*if we do not find the proper value, we will insert it into the non chinese table*/
-				CALL insert_one_record_to_target_table_using_column_names(
+				/*this is the last attempt to correct CtfId*/
+				CALL last_attempt_to_correct_chinese_id(str, corrected_value, is_area_info_all_digits);
+				IF CHAR_LENGTH(corrected_value) > 0 THEN
+					CALL update_single_column_with_id(
+								id, 
+								corrected_value, 
+								@base_column_name, 
+								@table_name, 
+								@database_name
+								);
+					CALL insert_one_record_to_target_table_using_column_names(
 							@origin_column_names, 
 							@target_column_names, 
 							id, 
-							@non_chinese_table, 
+							IF(is_area_info_validated(corrected_value),
+									@chinese_table, @chinese_table_for_old_area_code),
 							@target_database, 
 							@table_name, 
 							@database_name
 							);
+				ELSE
+					
+					/*if we do not find the proper value, we will insert it into the non chinese table*/
+					CALL insert_one_record_to_target_table_using_column_names(
+								@origin_column_names, 
+								@target_column_names, 
+								id, 
+								@non_chinese_table, 
+								@target_database, 
+								@table_name, 
+								@database_name
+								);
+				END IF;
 			END IF;
 		END IF;
 	END IF;
@@ -683,5 +803,5 @@ DELIMITER ;
 
 /*
  * the entrance of whole procedure
-*/
+ */
 CALL split_table_to_chinese_and_non_chinese();
