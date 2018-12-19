@@ -1,0 +1,18 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/Project Assignments/02 Codes/03 DataStructure/08 20181214/Problem5/binary_search.cpp
+definitions.h
+C:/Project Assignments/02 Codes/03 DataStructure/08 20181214/Problem5/definitions.h
+
+C:/Project Assignments/02 Codes/03 DataStructure/08 20181214/Problem5/definitions.h
+cstdio
+-
+stdlib.h
+-
+
