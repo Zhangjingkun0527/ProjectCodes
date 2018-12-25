@@ -4,48 +4,48 @@
 #include <cstdio>
 #include <stdlib.h>
 
-//éšæœºæ•°çš„æ•°é‡ï¼Œä¸‹ç•Œï¼Œä¸Šç•Œï¼Œå¯ä»¥ä½¿ç”¨eè¡¨è¾¾å¼
-#define COUNT_OF_RANDOM_NUMBERS 1e4
+//Ëæ»úÊıµÄÊıÁ¿£¬ÏÂ½ç£¬ÉÏ½ç£¬¿ÉÒÔÊ¹ÓÃe±í´ïÊ½
+#define COUNT_OF_RANDOM_NUMBERS 3e4
 #define LOWER_BOUND 1
-#define UPPER_BOUND 2e4
+#define UPPER_BOUND 3e4
 
 #define NOT_FOUND -1
 
 /**
- * éšæœºæ•°ç”Ÿæˆå‡½æ•°ï¼Œåªç”Ÿæˆæ•´å‹IntèŒƒå›´å†…çš„éšæœºæ•°
- * @param count éšæœºæ•°çš„ä¸ªæ•°
- * @param lower_bound éšæœºæ•°ä¸‹ç•Œ
- * @param upper_bound éšæœºæ•°ä¸Šç•Œ
- * @return è¿”å›éšæœºæ•°æ•°ç»„çš„æŒ‡é’ˆ
+ * Ëæ»úÊıÉú³Éº¯Êı£¬Ö»Éú³ÉÕûĞÍInt·¶Î§ÄÚµÄËæ»úÊı
+ * @param count Ëæ»úÊıµÄ¸öÊı
+ * @param lower_bound Ëæ»úÊıÏÂ½ç
+ * @param upper_bound Ëæ»úÊıÉÏ½ç
+ * @return ·µ»ØËæ»úÊıÊı×éµÄÖ¸Õë
  */
 int *generator_random_numbers(int count, int lower_bound, int upper_bound);
 
 /**
- * é¡ºåºæ£€ç´¢
- * @param arr æ£€ç´¢æ•°ç»„
- * @param key è¢«æ£€ç´¢çš„å€¼
+ * Ë³Ğò¼ìË÷
+ * @param arr ¼ìË÷Êı×é
+ * @param key ±»¼ìË÷µÄÖµ
  * @param count_of_search
- * @return æŸ¥æ‰¾ç»“æœï¼Œå¦‚æœæ²¡æœ‰æ‰¾åˆ°åˆ™è¿”å›-1ï¼Œå¦‚æœæ‰¾åˆ°åˆ™è¿”å›ä¸‹æ ‡
+ * @return ²éÕÒ½á¹û£¬Èç¹ûÃ»ÓĞÕÒµ½Ôò·µ»Ø-1£¬Èç¹ûÕÒµ½Ôò·µ»ØÏÂ±ê
  */
-int sequential_search(int *arr, int key, int &count_of_search);
+int sequential_search(int *arr, int key, long long &count_of_search);
 
 /**
- * æ‰“å°é¡ºåºæ£€ç´¢æŸ¥æ‰¾æ€»æ¬¡æ•°ã€æŸ¥æ‰¾æˆåŠŸæ¬¡æ•°ã€æŸ¥æ‰¾æˆåŠŸç™¾åˆ†æ¯”ç­‰é¢˜ç›®è¦æ±‚çš„æ•°æ®
+ * ´òÓ¡Ë³Ğò¼ìË÷²éÕÒ×Ü´ÎÊı¡¢²éÕÒ³É¹¦´ÎÊı¡¢²éÕÒ³É¹¦°Ù·Ö±ÈµÈÌâÄ¿ÒªÇóµÄÊı¾İ
  */
 void print_search_times_for_sequential_search();
 
 
 /**
- * äºŒåˆ†æ£€ç´¢
- * @param arr æ£€ç´¢æ•°ç»„
- * @param key è¢«æ£€ç´¢çš„å€¼
+ * ¶ş·Ö¼ìË÷
+ * @param arr ¼ìË÷Êı×é
+ * @param key ±»¼ìË÷µÄÖµ
  * @param count_of_search
- * @return æŸ¥æ‰¾ç»“æœï¼Œå¦‚æœæ²¡æœ‰æ‰¾åˆ°åˆ™è¿”å›-1ï¼Œå¦‚æœæ‰¾åˆ°åˆ™è¿”å›ä¸‹æ ‡
+ * @return ²éÕÒ½á¹û£¬Èç¹ûÃ»ÓĞÕÒµ½Ôò·µ»Ø-1£¬Èç¹ûÕÒµ½Ôò·µ»ØÏÂ±ê
  */
-int binary_search(int *arr, int key, int &count_of_search);
+int binary_search(int *arr, int key, long long &count_of_search);
 
 /**
- * æ‰“å°é¡ºåºæ£€ç´¢æŸ¥æ‰¾æ€»æ¬¡æ•°ã€æŸ¥æ‰¾æˆåŠŸæ¬¡æ•°ã€æŸ¥æ‰¾æˆåŠŸç™¾åˆ†æ¯”ç­‰é¢˜ç›®è¦æ±‚çš„æ•°æ®
+ * ´òÓ¡Ë³Ğò¼ìË÷²éÕÒ×Ü´ÎÊı¡¢²éÕÒ³É¹¦´ÎÊı¡¢²éÕÒ³É¹¦°Ù·Ö±ÈµÈÌâÄ¿ÒªÇóµÄÊı¾İ
  */
 void print_search_times_for_binary_search();
 

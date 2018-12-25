@@ -3,20 +3,22 @@
 SET GLOBAL log_bin_trust_function_creators = TRUE;
 USE kaifang;
 SET @database_name = 'kaifang';
-SET @table_name = 'tmp';
-SET @target_database = 'test';
+SET @table_name = 'users_not_owning_chinese_identity_card';
+SET @target_database = ' kaifang';
 /*@base_column_name is judgment standard for split tabel, and alse the most important column*/
-SET @base_column_name = 'CtfId';
+SET @base_column_name = 'identity_number';
 SET @birthday_column_name = 'Birthday';
-SET @chinese_table = 'users_owning_chinese_identity_card';
-SET @non_chinese_table = 'users_not_owning_chinese_identity_card';
-SET @chinese_table_for_old_area_code = 'users_owning_old_chinese_identity_card';
+SET @chinese_table = 'users_owning_chinese_identity_card_copy1';
+SET @non_chinese_table = 'users_not_owning_chinese_identity_card_copy1';
+SET @chinese_table_for_old_area_code = 'users_owning_old_chinese_identity_card_copy1';
 
-SET @upper_bound_of_id = 11110000;
-SET @lower_bound_of_id = 11100000;
+
+SET @upper_bound_of_id = 1219032;
+SET @lower_bound_of_id = 85960;
+
 
 /*this variable is the set of column names of origin table which splited by comma*/
-SET @origin_column_names = 'Name, CtfId, Gender, Birthday, Address, Zip, Mobile, Tel, EMail, Nation, Version, id';
+SET @origin_column_names = 'name, identity_number, gender, birthday, contact_address, zip, mobile, tel_number, email, nation, register_date, id_cdsgus';
 /*this variable is the set of column names of target table which splited by comma*/
 SET @target_column_names = 'name, identity_number, gender, birthday, contact_address, zip, mobile, tel_number, email, nation, register_date, id_cdsgus'; 
 
@@ -323,7 +325,7 @@ CALL correct_the_unvalid_id_into_valid_id_having_18_numbers('320213196004165162'
 SELECT @result;*/
 
 /*
- * 2018-12-15 added, last attempt to correct id for CtfId value
+ * added in 2018-12-15, last attempt to correct id for CtfId value
  */
 DROP PROCEDURE IF EXISTS last_attempt_to_correct_chinese_id;
 DELIMITER //
@@ -365,8 +367,7 @@ for_leave : BEGIN
 	END IF;
 	
 	SET tmp = SUBSTRING(drop_illegal_character(id), 7);
-	/*for bithday, we consider only it may lack of the first number 1 or has redundant 1 for id having 18 numbers
-	 like 41072[]19940527 or like 410721[1]19940527*/
+	/*for bithday, we consider only it may lack of the first number 1 or has redundant  number 1 for id having 18 numbers like 41072[]19940527 or like 410721[1]19940527*/
 	SET birthday = CONCAT('1', SUBSTRING(tmp, 1, 7));
 	IF birthday REGEXP @the_yyyy_mm_dd_regexp AND STRCMP(birthday, '19100101') THEN
 		SET birthday_selector = birthday_selector_1;
@@ -420,12 +421,14 @@ SET @sdsdsd = 0;
 CALL last_attempt_to_correct_chinese_id('370205968092055515', @result, @sdsdsd );
 SELECT @result, @sdsdsd;
 
+
 /***************************************split line*********************************************/
 /********************************below this is the main procedure part*************************/
 
 
 /*
- * this prodeure is trying to find the id number from other columns, this procedure is called by procedure find_id_number_from_other_columns
+ * this prodeure is trying to find the id number from other columns, this procedure is called by procedure 
+ * find_id_number_from_other_columns.
  */
 DROP PROCEDURE IF	EXISTS find_id_number_from_other_columns_processing_function;
 DELIMITER //
@@ -632,8 +635,10 @@ CALL find_id_number_from_other_columns(75778, @result);
 SELECT @result;*/
 
 /* 
- *  this procedure is the main processing part in main procedure. The cause of creation is to 
- reduce the complexity of main procedure
+ * *****This procedure is procedure which owns the main processing logic*****
+ *
+ * this procedure is the main processing part in main procedure. The cause of creation is to 
+ * reduce the complexity of main procedure
  */
 DROP PROCEDURE IF EXISTS processing_id_numbers_and_do_insertion;
 DELIMITER //

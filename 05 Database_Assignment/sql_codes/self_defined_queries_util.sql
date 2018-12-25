@@ -89,3 +89,20 @@ BEGIN
 	EXECUTE insert_statement;
 END //
 DELIMITER ;
+
+/*
+ * this procedure is defined for delete query, you can define expression(condition_expression) using for condition judging
+ */
+DROP PROCEDURE IF EXISTS self_defined_delete_query;
+DELIMITER //
+CREATE PROCEDURE self_defined_delete_query(IN table_name VARCHAR(255), IN condition_expression VARCHAR(255))
+BEGIN
+	SET @delete_query_sql = CONCAT('DELETE FROM ', table_name);
+	IF !ISNULL(condition_expression) AND CHAR_LENGTH(TRIM(condition_expression)) > 0 THEN
+		SET @delete_query_sql = CONCAT(@delete_query_sql, ' WHERE ', condition_expression);
+	END IF;
+	
+	PREPARE delete_query_sql FROM @delete_query_sql;
+	EXECUTE delete_query_sql;
+END //
+DELIMITER ;

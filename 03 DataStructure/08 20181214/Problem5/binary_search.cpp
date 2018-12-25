@@ -11,11 +11,11 @@ void print_search_times_for_binary_search() {
     //生成key所在的随机数组
     auto keys = generator_random_numbers(count, lower_bound, upper_bound);
     //检索总次数
-    auto count_of_search = 0;
+    long long count_of_search = 0;
     //检索成功总次数
     auto count_of_successful_search = 0;
     //用于记录每次的检索次数
-    auto temp = 0;
+    long long temp = 0;
     //对数组进行排序，使用C自带的快排函数排序，从小到大排序
     qsort(for_search_arr, static_cast<size_t>(count), sizeof(for_search_arr[0]), cmp);
 
@@ -29,12 +29,16 @@ void print_search_times_for_binary_search() {
     }
 
 
-    printf("二分检索10000次检索总次数为%d，成功检索的次数为%d，检索成功百分比为%.2f%%，每次检索进行的平均比较次数为%.2f。\n"
-            , count_of_search, count_of_successful_search, (count_of_successful_search * 100) / COUNT_OF_RANDOM_NUMBERS, count_of_search / COUNT_OF_RANDOM_NUMBERS);
+    printf("二分检索进行%dk次检索总次数为%lld，成功检索的次数为%d，检索成功百分比为%.2f%%，每次检索进行的平均比较次数为%.2f。\n"
+            , static_cast<int>(COUNT_OF_RANDOM_NUMBERS / 1000),
+           count_of_search,
+           count_of_successful_search,
+           count_of_successful_search * 100 / COUNT_OF_RANDOM_NUMBERS,
+           count_of_search / COUNT_OF_RANDOM_NUMBERS);
 
 }
 
-int binary_search(int *arr, int key, int &count_of_search){
+int binary_search(int *arr, int key, long long &count_of_search){
     auto begin = 0;
     auto end = (static_cast<int>(COUNT_OF_RANDOM_NUMBERS)) - 1;
     int middle = (begin + end) / 2;

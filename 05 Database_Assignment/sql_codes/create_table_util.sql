@@ -1,4 +1,5 @@
 SET @database_name = 'kaifang';
+SET @param_num = 30;
 
 DROP PROCEDURE IF EXISTS create_table_for_storing_column_name;
 DELIMITER //
@@ -23,6 +24,7 @@ BEGIN
 	END IF;
 END // 
 DELIMITER ;
+/*
 CALL create_table_for_storing_column_name();
 
 
@@ -34,13 +36,13 @@ DROP PROCEDURE IF EXISTS create_param_table;
 DELIMITER //
 CREATE PROCEDURE create_param_table() 
 BEGIN
-	DECLARE count_of_columns INT DEFAULT 17;
+	DECLARE count_of_columns INT DEFAULT (@param_num - 10);
 	/*create validate table for verifying ids*/
 	IF NOT EXISTS (SELECT TABLE_NAME FROM information_schema.`TABLES` WHERE TABLE_NAME = 'validate_params' AND TABLE_SCHEMA = @database_name ) THEN
 		CREATE TABLE validate_params (type VARCHAR (100) NOT NULL, CONSTRAINT PRIMARY KEY (type));
 		/*we think that it's enough for adding 18 columns to the validate_params*/
 		WHILE	count_of_columns >= 0 DO
-			SET @indexer = 18 - count_of_columns;
+			SET @indexer = @param_num - count_of_columns;
 			SET @column_name = CONCAT('param_', @indexer);
 			IF NOT EXISTS (SELECT COLUMN_NAME FROM information_schema.`COLUMNS` WHERE TABLE_SCHEMA = @database_name AND TABLE_NAME = 'validate_params' AND COLUMN_NAME = @column_name) THEN
 				SET @add_column_statement = CONCAT('ALTER TABLE validate_params ADD COLUMN ', @column_name, ' VARCHAR(10)');
